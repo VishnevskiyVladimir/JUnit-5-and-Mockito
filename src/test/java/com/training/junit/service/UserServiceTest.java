@@ -1,11 +1,17 @@
 package com.training.junit.service;
 
+import com.training.junit.dto.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class UserServiceTest {
+import java.util.List;
+
+class UserServiceTest {
+
     @Test
-    void test(){
-        Assertions.assertTrue(false);
+    void usersEmptyIfNoUsersAdded(){
+        var userService = new UserService();
+        var users = userService.getAll();
+        Assertions.assertTrue(users.isEmpty());
     }
 }
