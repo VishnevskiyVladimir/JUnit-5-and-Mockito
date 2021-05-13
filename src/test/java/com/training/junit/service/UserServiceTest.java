@@ -6,13 +6,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("fast")
 @Tag("user")
@@ -54,8 +54,14 @@ class UserServiceTest {
     @DisplayName("test user login functionality")
     @Tag("login")
     class loginTest {
+
         @Test
-        void loginSucessIfUserExists() {
+        void loginFunctionalityPerformanceTest(){
+            assertTimeout(Duration.ofMillis(50L),() -> userService.login(IVAN.getUsername(), IVAN.getPassword()));
+        }
+
+        @Test
+        void loginSuccessIfUserExists() {
             System.out.println("test3" + this);
             userService.add(IVAN);
             Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
