@@ -1,12 +1,12 @@
 package com.training.junit.service;
 
 import com.training.junit.dto.User;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 class UserServiceTest {
@@ -30,7 +30,7 @@ class UserServiceTest {
     void usersEmptyIfNoUsersAdded(){
         System.out.println("test1" + this);
         var users = userService.getAll();
-        Assertions.assertTrue(users.isEmpty());
+        assertThat(users).isEmpty();
     }
 
     @Test
@@ -39,7 +39,7 @@ class UserServiceTest {
         userService.add(IVAN);
         userService.add(PETR);
         var users = userService.getAll();
-        assertEquals(2,users.size());
+        assertThat(users).hasSize(2);
     }
 
     @Test
@@ -47,22 +47,22 @@ class UserServiceTest {
         System.out.println("test3" + this);
         userService.add(IVAN);
         Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
-        assertTrue(loggedIn.isPresent());
-        loggedIn.ifPresent(user ->  assertEquals(IVAN,user));
+        assertThat(loggedIn).isPresent();
+        loggedIn.ifPresent(user ->  assertThat(user).isEqualTo(IVAN));
     }
     @Test
     void loginFailIfPasswordIsIncorrect(){
         System.out.println("test4" + this);
         userService.add(IVAN);
         Optional<User> loggedIn = userService.login(IVAN.getUsername(), "dummy");
-        assertTrue(loggedIn.isEmpty());
+        assertThat(loggedIn).isEmpty();
     }
     @Test
     void loginFailIfUserDoesNotExist(){
         System.out.println("test4" + this);
         userService.add(IVAN);
         Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
-        assertTrue(loggedIn.isEmpty());
+        assertThat(loggedIn).isEmpty();
     }
 
     @AfterEach
