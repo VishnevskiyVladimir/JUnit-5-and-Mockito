@@ -9,7 +9,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-
+@Tag("fast")
+@Tag("user")
 class UserServiceTest {
 
     private static final User IVAN = User.of(1L, "Ivan", "pass1");
@@ -43,6 +44,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Tag("login")
     void loginSucessIfUserExists() {
         System.out.println("test3" + this);
         userService.add(IVAN);
@@ -52,6 +54,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Tag("login")
     void loginFailIfPasswordIsIncorrect() {
         System.out.println("test4" + this);
         userService.add(IVAN);
@@ -60,6 +63,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Tag("login")
     void loginFailIfUserDoesNotExist() {
         System.out.println("test4" + this);
         userService.add(IVAN);
@@ -68,6 +72,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Tag("login")
     void throwExceptionIfUsernameOrPasswordIsNull() {
 //    //old way of testing exceptions
 //        try{
