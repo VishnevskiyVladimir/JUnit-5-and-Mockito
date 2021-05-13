@@ -45,38 +45,38 @@ class UserServiceTest {
     }
 
 
-    @Test
+    @Nested
+    @DisplayName("test user login functionality")
     @Tag("login")
-    void loginSucessIfUserExists() {
-        System.out.println("test3" + this);
-        userService.add(IVAN);
-        Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
-        assertThat(loggedIn).isPresent();
-        loggedIn.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
-    }
+    class loginTest {
+        @Test
+        void loginSucessIfUserExists() {
+            System.out.println("test3" + this);
+            userService.add(IVAN);
+            Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
+            assertThat(loggedIn).isPresent();
+            loggedIn.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
+        }
 
-    @Order(1)
-    @Test
-    @Tag("login")
-    void loginFailIfPasswordIsIncorrect() {
-        System.out.println("test4" + this);
-        userService.add(IVAN);
-        Optional<User> loggedIn = userService.login(IVAN.getUsername(), "dummy");
-        assertThat(loggedIn).isEmpty();
-    }
+        @Order(1)
+        @Test
+        void loginFailIfPasswordIsIncorrect() {
+            System.out.println("test4" + this);
+            userService.add(IVAN);
+            Optional<User> loggedIn = userService.login(IVAN.getUsername(), "dummy");
+            assertThat(loggedIn).isEmpty();
+        }
 
-    @Test
-    @Tag("login")
-    void loginFailIfUserDoesNotExist() {
-        System.out.println("test4" + this);
-        userService.add(IVAN);
-        Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
-        assertThat(loggedIn).isEmpty();
-    }
+        @Test
+        void loginFailIfUserDoesNotExist() {
+            System.out.println("test4" + this);
+            userService.add(IVAN);
+            Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
+            assertThat(loggedIn).isEmpty();
+        }
 
-    @Test
-    @Tag("login")
-    void throwExceptionIfUsernameOrPasswordIsNull() {
+        @Test
+        void throwExceptionIfUsernameOrPasswordIsNull() {
 //    //old way of testing exceptions
 //        try{
 //            userService.login(null, "dummy");
@@ -84,16 +84,18 @@ class UserServiceTest {
 //        } catch (Exception e) {
 //            assertTrue(true);
 //        }
-        assertAll(
-                () -> {
-                    var e = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
-                    assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
-                },
-                () -> {
-                    var e =assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
-                    assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
-                }
-        );
+            assertAll(
+                    () -> {
+                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
+                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                    },
+                    () -> {
+                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
+                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                    }
+            );
+        }
+
     }
 
     @Test
