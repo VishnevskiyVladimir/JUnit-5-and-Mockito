@@ -50,8 +50,38 @@ class UserServiceTest {
     }
 
 
-    @Test
-    void throwExceptionIfUsernameOrPasswordIsNull() {
+    @Nested
+    @DisplayName("test user login functionality")
+    @Tag("login")
+    class loginTest {
+        @Test
+        void loginSucessIfUserExists() {
+            System.out.println("test3" + this);
+            userService.add(IVAN);
+            Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
+            assertThat(loggedIn).isPresent();
+            loggedIn.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
+        }
+
+        @Order(1)
+        @Test
+        void loginFailIfPasswordIsIncorrect() {
+            System.out.println("test4" + this);
+            userService.add(IVAN);
+            Optional<User> loggedIn = userService.login(IVAN.getUsername(), "dummy");
+            assertThat(loggedIn).isEmpty();
+        }
+
+        @Test
+        void loginFailIfUserDoesNotExist() {
+            System.out.println("test4" + this);
+            userService.add(IVAN);
+            Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
+            assertThat(loggedIn).isEmpty();
+        }
+
+        @Test
+        void throwExceptionIfUsernameOrPasswordIsNull() {
 //    //old way of testing exceptions
 //        try{
 //            userService.login(null, "dummy");
@@ -59,27 +89,27 @@ class UserServiceTest {
 //        } catch (Exception e) {
 //            assertTrue(true);
 //        }
-        assertAll(
-                () -> {
-                    var e = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
-                    assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
-                },
-                () -> {
-                    var e = assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
-                    assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
-                }
-        );
-    }
+            assertAll(
+                    () -> {
+                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
+                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                    },
+                    () -> {
+                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
+                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                    }
+            );
+        }
 
-    @DisplayName("login param test")
-    @ParameterizedTest(name = "{arguments} test")
-    @MethodSource("com.training.junit.service.UserServiceTest#getArgumentsForLoginTest")
-    void loginParameterizedTest(String username, String password, Optional<User> user) {
-        userService.add(IVAN, PETR);
-        var maybeUser = userService.login(username, password);
-        assertThat(maybeUser).isEqualTo(user);
+        @DisplayName("login param test")
+        @ParameterizedTest(name = "{arguments} test")
+        @MethodSource("com.training.junit.service.UserServiceTest#getArgumentsForLoginTest")
+        void loginParameterizedTest(String username, String password, Optional<User> user) {
+            userService.add(IVAN, PETR);
+            var maybeUser = userService.login(username, password);
+            assertThat(maybeUser).isEqualTo(user);
+        }
     }
-
 
     static Stream<Arguments> getArgumentsForLoginTest() {
         return Stream.of(
