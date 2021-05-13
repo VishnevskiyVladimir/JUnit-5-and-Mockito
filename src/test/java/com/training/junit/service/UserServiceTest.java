@@ -2,9 +2,14 @@ package com.training.junit.service;
 
 import com.training.junit.dto.User;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,38 +49,9 @@ class UserServiceTest {
         assertThat(users).hasSize(2);
     }
 
-    @Nested
-    @DisplayName("test user login functionality")
-    @Tag("login")
-    class loginTest {
-        @Test
-        void loginSucessIfUserExists() {
-            System.out.println("test3" + this);
-            userService.add(IVAN);
-            Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
-            assertThat(loggedIn).isPresent();
-            loggedIn.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
-        }
 
-        @Order(1)
-        @Test
-        void loginFailIfPasswordIsIncorrect() {
-            System.out.println("test4" + this);
-            userService.add(IVAN);
-            Optional<User> loggedIn = userService.login(IVAN.getUsername(), "dummy");
-            assertThat(loggedIn).isEmpty();
-        }
-
-        @Test
-        void loginFailIfUserDoesNotExist() {
-            System.out.println("test4" + this);
-            userService.add(IVAN);
-            Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
-            assertThat(loggedIn).isEmpty();
-        }
-
-        @Test
-        void throwExceptionIfUsernameOrPasswordIsNull() {
+    @Test
+    void throwExceptionIfUsernameOrPasswordIsNull() {
 //    //old way of testing exceptions
 //        try{
 //            userService.login(null, "dummy");
@@ -83,18 +59,36 @@ class UserServiceTest {
 //        } catch (Exception e) {
 //            assertTrue(true);
 //        }
-            assertAll(
-                    () -> {
-                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
-                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
-                    },
-                    () -> {
-                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
-                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
-                    }
-            );
-        }
+        assertAll(
+                () -> {
+                    var e = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
+                    assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                },
+                () -> {
+                    var e = assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
+                    assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                }
+        );
+    }
 
+    @DisplayName("login param test")
+    @ParameterizedTest(name = "{arguments} test")
+    @MethodSource("com.training.junit.service.UserServiceTest#getArgumentsForLoginTest")
+    void loginParameterizedTest(String username, String password, Optional<User> user) {
+        userService.add(IVAN, PETR);
+        var maybeUser = userService.login(username, password);
+        assertThat(maybeUser).isEqualTo(user);
+    }
+
+
+    static Stream<Arguments> getArgumentsForLoginTest() {
+        return Stream.of(
+                Arguments.of(IVAN.getUsername(), IVAN.getPassword(), Optional.of(IVAN)),
+                Arguments.of(PETR.getUsername(), PETR.getPassword(), Optional.of(PETR)),
+                Arguments.of(PETR.getUsername(), "dummy", Optional.empty()),
+                Arguments.of("dummy", PETR.getPassword(), Optional.empty()),
+                Arguments.of("dummy", "dummy", Optional.empty())
+        );
     }
 
     @Test
