@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class UserServiceTest {
@@ -65,6 +65,27 @@ class UserServiceTest {
         userService.add(IVAN);
         Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
         assertThat(loggedIn).isEmpty();
+    }
+
+    @Test
+    void throwExceptionIfUsernameOrPasswordIsNull() {
+//    //old way of testing exceptions
+//        try{
+//            userService.login(null, "dummy");
+//            fail();
+//        } catch (Exception e) {
+//            assertTrue(true);
+//        }
+        assertAll(
+                () -> {
+                    var e = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
+                    assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                },
+                () -> {
+                    var e =assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
+                    assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                }
+        );
     }
 
     @Test

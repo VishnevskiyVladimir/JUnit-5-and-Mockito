@@ -4,9 +4,8 @@ import com.training.junit.dto.User;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toMap;
 
 public class UserService {
 
@@ -22,6 +21,9 @@ public class UserService {
 
     public Optional<User> login(String username, String password) {
 
+        if(username == null || password == null) {
+            throw new IllegalArgumentException("Username or password should not be null");
+        }
         return users.stream()
                 .filter(user -> user.getUsername().equals(username))
                 .filter(user -> user.getPassword().equals(password))
