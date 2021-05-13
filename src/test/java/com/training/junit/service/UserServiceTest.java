@@ -44,7 +44,6 @@ class UserServiceTest {
         assertThat(users).hasSize(2);
     }
 
-
     @Nested
     @DisplayName("test user login functionality")
     @Tag("login")
