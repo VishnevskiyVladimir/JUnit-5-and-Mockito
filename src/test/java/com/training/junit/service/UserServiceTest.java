@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("fast")
 @Tag("user")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserServiceTest {
 
     private static final User IVAN = User.of(1L, "Ivan", "pass1");
@@ -43,6 +44,7 @@ class UserServiceTest {
         assertThat(users).hasSize(2);
     }
 
+
     @Test
     @Tag("login")
     void loginSucessIfUserExists() {
@@ -53,6 +55,7 @@ class UserServiceTest {
         loggedIn.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
     }
 
+    @Order(1)
     @Test
     @Tag("login")
     void loginFailIfPasswordIsIncorrect() {
