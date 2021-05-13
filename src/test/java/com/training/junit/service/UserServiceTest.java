@@ -1,12 +1,13 @@
 package com.training.junit.service;
 
 import com.training.junit.dto.User;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 
 class UserServiceTest {
@@ -27,42 +28,55 @@ class UserServiceTest {
     }
 
     @Test
-    void usersEmptyIfNoUsersAdded(){
+    void usersEmptyIfNoUsersAdded() {
         System.out.println("test1" + this);
         var users = userService.getAll();
         assertThat(users).isEmpty();
     }
 
     @Test
-    void usersSizeIfUserAdded(){
+    void usersSizeIfUserAdded() {
         System.out.println("test2" + this);
-        userService.add(IVAN);
-        userService.add(PETR);
+        userService.add(IVAN, PETR);
         var users = userService.getAll();
         assertThat(users).hasSize(2);
     }
 
     @Test
-    void loginSucessIfUserExists(){
+    void loginSucessIfUserExists() {
         System.out.println("test3" + this);
         userService.add(IVAN);
         Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
         assertThat(loggedIn).isPresent();
-        loggedIn.ifPresent(user ->  assertThat(user).isEqualTo(IVAN));
+        loggedIn.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
     }
+
     @Test
-    void loginFailIfPasswordIsIncorrect(){
+    void loginFailIfPasswordIsIncorrect() {
         System.out.println("test4" + this);
         userService.add(IVAN);
         Optional<User> loggedIn = userService.login(IVAN.getUsername(), "dummy");
         assertThat(loggedIn).isEmpty();
     }
+
     @Test
-    void loginFailIfUserDoesNotExist(){
+    void loginFailIfUserDoesNotExist() {
         System.out.println("test4" + this);
         userService.add(IVAN);
         Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
         assertThat(loggedIn).isEmpty();
+    }
+
+    @Test
+    void usersConvertedToMapById() {
+        userService.add(IVAN, PETR);
+        Map<Long, User> users = userService.getUserMapById();
+        assertAll(
+                () -> assertThat(users).containsKeys(IVAN.getId(), PETR.getId()),
+                () -> assertThat(users).containsValues(IVAN, PETR)
+        );
+
+
     }
 
     @AfterEach

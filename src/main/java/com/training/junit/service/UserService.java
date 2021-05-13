@@ -2,9 +2,11 @@ package com.training.junit.service;
 
 import com.training.junit.dto.User;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 public class UserService {
 
@@ -14,8 +16,8 @@ public class UserService {
         return new ArrayList<>(users);
     }
 
-    public void add(User user) {
-        users.add(user);
+    public void add(User... users) {
+        this.users.addAll(Arrays.asList(users));
     }
 
     public Optional<User> login(String username, String password) {
@@ -24,6 +26,11 @@ public class UserService {
                 .filter(user -> user.getUsername().equals(username))
                 .filter(user -> user.getPassword().equals(password))
                 .findFirst();
+    }
+
+    public Map<Long, User> getUserMapById() {
+        return users.stream()
+                .collect(toMap(User::getId, Function.identity()));
     }
 }
 
