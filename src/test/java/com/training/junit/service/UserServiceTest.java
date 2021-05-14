@@ -2,7 +2,9 @@ package com.training.junit.service;
 
 import com.training.junit.TestBase;
 import com.training.junit.dto.User;
+import com.training.junit.extention.ConditionalExtension;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -39,14 +41,14 @@ class UserServiceTest extends TestBase {
 
     @Test
     void usersEmptyIfNoUsersAdded(TestInfo testInfo) {
-        System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+        System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
         var users = userService.getAll();
         assertThat(users).isEmpty();
     }
 
     @RepeatedTest(5)
     void usersSizeIfUserAdded(TestInfo testInfo) {
-        System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+        System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
         userService.add(IVAN, PETR);
         var users = userService.getAll();
         assertThat(users).hasSize(2);
@@ -57,17 +59,20 @@ class UserServiceTest extends TestBase {
     @DisplayName("test user login functionality")
     @Tag("login")
 //    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @ExtendWith({
+            ConditionalExtension.class
+    })
     class loginTest {
 
         @Test
-        void loginFunctionalityPerformanceTest(TestInfo testInfo){
-            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
-            assertTimeout(Duration.ofMillis(50L),() -> userService.login(IVAN.getUsername(), IVAN.getPassword()));
+        void loginFunctionalityPerformanceTest(TestInfo testInfo) {
+            System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
+            assertTimeout(Duration.ofMillis(50L), () -> userService.login(IVAN.getUsername(), IVAN.getPassword()));
         }
 
         @Test
         void loginSuccessIfUserExists(TestInfo testInfo) {
-            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+            System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
             userService.add(IVAN);
             Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
             assertThat(loggedIn).isPresent();
@@ -77,7 +82,7 @@ class UserServiceTest extends TestBase {
         @Order(1)
         @Test
         void loginFailIfPasswordIsIncorrect(TestInfo testInfo) {
-            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+            System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
             userService.add(IVAN);
             Optional<User> loggedIn = userService.login(IVAN.getUsername(), "dummy");
             assertThat(loggedIn).isEmpty();
@@ -85,7 +90,7 @@ class UserServiceTest extends TestBase {
 
         @Test
         void loginFailIfUserDoesNotExist(TestInfo testInfo) {
-            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+            System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
             userService.add(IVAN);
             Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
             assertThat(loggedIn).isEmpty();
@@ -116,7 +121,7 @@ class UserServiceTest extends TestBase {
         @ParameterizedTest(name = "{arguments} test")
         @MethodSource("com.training.junit.service.UserServiceTest#getArgumentsForLoginTest")
         void loginParameterizedTest(String username, String password, Optional<User> user, TestInfo testInfo) {
-            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+            System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
             userService.add(IVAN, PETR);
             var maybeUser = userService.login(username, password);
             assertThat(maybeUser).isEqualTo(user);
@@ -135,7 +140,7 @@ class UserServiceTest extends TestBase {
 
     @Test
     void usersConvertedToMapById(TestInfo testInfo) {
-        System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+        System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
         userService.add(IVAN, PETR);
         Map<Long, User> users = userService.getUserMapById();
         assertAll(
