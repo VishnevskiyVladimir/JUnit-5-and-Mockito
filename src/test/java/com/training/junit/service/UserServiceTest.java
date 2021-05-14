@@ -3,8 +3,11 @@ package com.training.junit.service;
 import com.training.junit.TestBase;
 import com.training.junit.dto.User;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -15,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("fast")
 @Tag("user")
 @TestMethodOrder(MethodOrderer.Random.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
 class UserServiceTest extends TestBase {
 
@@ -50,74 +53,75 @@ class UserServiceTest extends TestBase {
     }
 
 
-//    @Nested
-//    @DisplayName("test user login functionality")
-//    @Tag("login")
-//    class loginTest {
-//
-//        @Test
-//        void loginFunctionalityPerformanceTest(TestInfo testInfo){
-//            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
-//            assertTimeout(Duration.ofMillis(50L),() -> userService.login(IVAN.getUsername(), IVAN.getPassword()));
+    @Nested
+    @DisplayName("test user login functionality")
+    @Tag("login")
+//    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class loginTest {
+
+        @Test
+        void loginFunctionalityPerformanceTest(TestInfo testInfo){
+            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+            assertTimeout(Duration.ofMillis(50L),() -> userService.login(IVAN.getUsername(), IVAN.getPassword()));
+        }
+
+        @Test
+        void loginSuccessIfUserExists(TestInfo testInfo) {
+            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+            userService.add(IVAN);
+            Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
+            assertThat(loggedIn).isPresent();
+            loggedIn.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
+        }
+
+        @Order(1)
+        @Test
+        void loginFailIfPasswordIsIncorrect(TestInfo testInfo) {
+            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+            userService.add(IVAN);
+            Optional<User> loggedIn = userService.login(IVAN.getUsername(), "dummy");
+            assertThat(loggedIn).isEmpty();
+        }
+
+        @Test
+        void loginFailIfUserDoesNotExist(TestInfo testInfo) {
+            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+            userService.add(IVAN);
+            Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
+            assertThat(loggedIn).isEmpty();
+        }
+
+        @Test
+        void throwExceptionIfUsernameOrPasswordIsNull(TestInfo testInfo) {
+//    //old way of testing exceptions
+//        try{
+//            userService.login(null, "dummy");
+//            fail();
+//        } catch (Exception e) {
+//            assertTrue(true);
 //        }
-//
-//        @Test
-//        void loginSuccessIfUserExists(TestInfo testInfo) {
-//            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
-//            userService.add(IVAN);
-//            Optional<User> loggedIn = userService.login(IVAN.getUsername(), IVAN.getPassword());
-//            assertThat(loggedIn).isPresent();
-//            loggedIn.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
-//        }
-//
-//        @Order(1)
-//        @Test
-//        void loginFailIfPasswordIsIncorrect(TestInfo testInfo) {
-//            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
-//            userService.add(IVAN);
-//            Optional<User> loggedIn = userService.login(IVAN.getUsername(), "dummy");
-//            assertThat(loggedIn).isEmpty();
-//        }
-//
-//        @Test
-//        void loginFailIfUserDoesNotExist(TestInfo testInfo) {
-//            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
-//            userService.add(IVAN);
-//            Optional<User> loggedIn = userService.login("dummy", IVAN.getPassword());
-//            assertThat(loggedIn).isEmpty();
-//        }
-//
-//        @Test
-//        void throwExceptionIfUsernameOrPasswordIsNull(TestInfo testInfo) {
-////    //old way of testing exceptions
-////        try{
-////            userService.login(null, "dummy");
-////            fail();
-////        } catch (Exception e) {
-////            assertTrue(true);
-////        }
-//            assertAll(
-//                    () -> {
-//                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
-//                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
-//                    },
-//                    () -> {
-//                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
-//                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
-//                    }
-//            );
-//        }
-//
-//        @DisplayName("login param test")
-//        @ParameterizedTest(name = "{arguments} test")
-//        @MethodSource("com.training.junit.service.UserServiceTest#getArgumentsForLoginTest")
-//        void loginParameterizedTest(String username, String password, Optional<User> user, TestInfo testInfo) {
-//            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
-//            userService.add(IVAN, PETR);
-//            var maybeUser = userService.login(username, password);
-//            assertThat(maybeUser).isEqualTo(user);
-//        }
-//    }
+            assertAll(
+                    () -> {
+                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
+                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                    },
+                    () -> {
+                        var e = assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
+                        assertThat(e.getMessage()).isEqualTo("Username or password should not be null");
+                    }
+            );
+        }
+
+        @DisplayName("login param test")
+        @ParameterizedTest(name = "{arguments} test")
+        @MethodSource("com.training.junit.service.UserServiceTest#getArgumentsForLoginTest")
+        void loginParameterizedTest(String username, String password, Optional<User> user, TestInfo testInfo) {
+            System.out.println("test " + testInfo.getDisplayName()  + " userService: "+ this);
+            userService.add(IVAN, PETR);
+            var maybeUser = userService.login(username, password);
+            assertThat(maybeUser).isEqualTo(user);
+        }
+    }
 
     static Stream<Arguments> getArgumentsForLoginTest() {
         return Stream.of(
