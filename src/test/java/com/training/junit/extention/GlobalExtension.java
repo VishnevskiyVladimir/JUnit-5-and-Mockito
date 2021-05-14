@@ -1,4 +1,4 @@
-package com.training.junit.service.extention;
+package com.training.junit.extention;
 
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
