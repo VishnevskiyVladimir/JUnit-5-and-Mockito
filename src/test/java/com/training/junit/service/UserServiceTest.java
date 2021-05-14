@@ -4,6 +4,7 @@ import com.training.junit.TestBase;
 import com.training.junit.dto.User;
 import com.training.junit.extention.ConditionalExtension;
 import com.training.junit.extention.ThrowableExtension;
+import com.training.junit.extention.UserServiceParameterResolver;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,7 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.Random.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith({
-        ThrowableExtension.class
+        //ThrowableExtension.class,
+        UserServiceParameterResolver.class
 })
 class UserServiceTest extends TestBase {
 
@@ -37,9 +39,9 @@ class UserServiceTest extends TestBase {
     }
 
     @BeforeEach
-    void closeConnectionPool() {
+    void closeConnectionPool(UserService userService) {
         System.out.println("Before Each" + this);
-        userService = new UserService();
+        this.userService = userService;
     }
 
     @Test
@@ -70,8 +72,8 @@ class UserServiceTest extends TestBase {
 
         @Test
         void loginFunctionalityPerformanceTest(TestInfo testInfo) {
-            if (true)
-                throw new RuntimeException("test exception");
+//            if (true)
+//                throw new RuntimeException("test exception"); // for testing TrowableExtension
             System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
             assertTimeout(Duration.ofMillis(50L), () -> userService.login(IVAN.getUsername(), IVAN.getPassword()));
         }
