@@ -3,6 +3,7 @@ package com.training.junit.service;
 import com.training.junit.TestBase;
 import com.training.junit.dto.User;
 import com.training.junit.extention.ConditionalExtension;
+import com.training.junit.extention.ThrowableExtension;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,8 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("fast")
 @Tag("user")
 @TestMethodOrder(MethodOrderer.Random.class)
-//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ExtendWith({
+        ThrowableExtension.class
+})
 class UserServiceTest extends TestBase {
 
     private static final User IVAN = User.of(1L, "Ivan", "pass1");
@@ -44,6 +47,7 @@ class UserServiceTest extends TestBase {
         System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
         var users = userService.getAll();
         assertThat(users).isEmpty();
+
     }
 
     @RepeatedTest(5)
@@ -66,6 +70,8 @@ class UserServiceTest extends TestBase {
 
         @Test
         void loginFunctionalityPerformanceTest(TestInfo testInfo) {
+            if (true)
+                throw new RuntimeException("test exception");
             System.out.println("test " + testInfo.getDisplayName() + " userService: " + this);
             assertTimeout(Duration.ofMillis(50L), () -> userService.login(IVAN.getUsername(), IVAN.getPassword()));
         }
