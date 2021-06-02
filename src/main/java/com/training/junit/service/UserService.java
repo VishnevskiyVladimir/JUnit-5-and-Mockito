@@ -1,5 +1,6 @@
 package com.training.junit.service;
 
+import com.training.junit.dao.UserDao;
 import com.training.junit.dto.User;
 
 import java.util.*;
@@ -10,6 +11,15 @@ import static java.util.stream.Collectors.toMap;
 public class UserService {
 
     private final List<User> users = new ArrayList<>();
+    private final UserDao userDao;
+
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public boolean delete(Long userId){
+        return userDao.delete(25L);
+    }
 
     public List<User> getAll() {
         return new ArrayList<>(users);

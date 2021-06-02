@@ -1,6 +1,7 @@
 package com.training.junit.service;
 
 import com.training.junit.TestBase;
+import com.training.junit.dao.UserDao;
 import com.training.junit.dto.User;
 import com.training.junit.extention.ConditionalExtension;
 import com.training.junit.extention.ThrowableExtension;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.time.Duration;
 import java.util.Map;
@@ -31,6 +34,8 @@ class UserServiceTest extends TestBase {
 
     private static final User IVAN = User.of(1L, "Ivan", "pass1");
     private static final User PETR = User.of(2L, "Petr", "pass2");
+
+    private UserDao userDao;
     private UserService userService;
 
     @BeforeAll
@@ -39,9 +44,11 @@ class UserServiceTest extends TestBase {
     }
 
     @BeforeEach
-    void closeConnectionPool(UserService userService) {
+    void closeConnectionPool() {
         System.out.println("Before Each" + this);
-        this.userService = userService;
+//        this.userDao = Mockito.spy(UserDao.class);
+        this.userDao = Mockito.mock(UserDao.class);
+        this.userService = new UserService(this.userDao);
     }
 
     @Test
@@ -155,6 +162,27 @@ class UserServiceTest extends TestBase {
                 () -> assertThat(users).containsKeys(IVAN.getId(), PETR.getId()),
                 () -> assertThat(users).containsValues(IVAN, PETR)
         );
+
+
+    }
+
+    @Test
+    void shouldDeleteExistingUser(){
+        userService.add(IVAN);
+//        Mockito.doReturn(true).when(userDao).delete(IVAN.getId());
+        Mockito.doReturn(true).when(userDao).delete(25L);
+//        Mockito.doReturn(true).when(userDao).delete(Mockito.anyLong());
+//        Mockito.when(userDao.delete(IVAN.getId()))
+//                .thenReturn(false)
+//                .thenReturn(true);
+
+        var deleteResult = userService.delete(IVAN.getId());
+        deleteResult = userService.delete(IVAN.getId());
+//        var deleteResult = userService.delete(2L);
+        var argumentCaptor = ArgumentCaptor.forClass(Long.class);
+        Mockito.verify(userDao, Mockito.times(2)).delete(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).isEqualTo(25);
+        assertThat(deleteResult).isTrue();
 
 
     }
